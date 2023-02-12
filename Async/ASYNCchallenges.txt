@@ -1,0 +1,617 @@
+//JavaScript challenges on Asynchronous programming - challenges
+
+//Q. Print "Hello, world" with a delay of 3 seconds
+
+function delayedHelloWorld (delay:number = 3, text:string) {
+    setTimeout(() => {
+    console.log(text)
+  }, delay*1000)
+}
+
+delayedHelloWorld(3, "Delayed hello world!")
+
+//Q. Create a function which receives a function as argument and executes it after 2 seconds
+
+function delayedCallback (delay:number=2, callback:Function) {
+   if(typeof callback === 'function') {
+     setTimeout(() => {
+       callback()
+     }, delay*1000)
+   }
+}
+
+function cb () {
+   console.log("Callback invocation")
+}
+
+delayedCallback(2, cb)
+
+//Q. Print numbers from 1 to 10 with delay of 1 second between each value being printed
+
+for(let i=1; i < 11; i++) {
+  setTimeout(() => {
+    console.log(i)
+  }, i*1000)
+}
+
+//Q. Print numbers from 1 to 10 with delay of 1 second between each value being printed using setInterval
+
+let i = 1
+
+const interv = setInterval(() => {	
+  console.log(i)
+  i++
+  if(i > 10) clearInterval(interv)
+}, 1000)
+
+//Q. Print numbers from 10 to 1 with delay of 1 second between each value being printed using setTimeout using pre ES6 features only
+
+let start = 10
+
+for(let i=start; i > 0; i--) {
+  setTimeout(function () {
+    console.log(i)
+  }, (start-i) * 1000  )
+}
+
+OR
+
+let start = 10
+
+for(let i=start; i > 0; i--) {
+
+ (function (num) {
+ 
+    setTimeout(function () {
+      console.log(num)
+    }, (start-num) * 1000)
+  })(i)
+  
+}
+
+//Q. Write a utility which prints numbers starting from an initial value and increment in steps which can be started and stopped by the user, any number of times
+
+HTML:
+
+<div id='count'>Count: 0</div>
+<button type='button' id='startStop'>Start/Stop</button>
+
+JS:
+
+let state = {
+//Stop = false, Start = true
+	startStop: false,
+  count: 1,
+}
+
+let timer
+
+const countDiv = document.getElementById('count')
+const startStopBtn = document.getElementById('startStop')
+
+startStopBtn.addEventListener('click', () => {
+  //Toggle start and stop
+  state.startStop = !state.startStop
+
+  switch(state.startStop) {
+    case true: {
+      console.log('start')
+      timer = setInterval(() => {
+        countDiv.textContent = `Count: ${state.count}`
+        state.count++
+      }, 1000)
+      break
+    }
+    case false: {
+      console.log('stop')
+      clearInterval(timer)
+      break
+    }
+    default:
+      return
+  }
+})
+
+//Q. Execute an array of asynchronous functions one after the other in sequence using callbacks
+
+function fOne (cb) {
+	setTimeout(() => {
+  	console.log("Fn 1")
+    cb()
+  }, 5000)
+}
+
+function fTwo (cb) {
+	setTimeout(() => {
+  	console.log("Fn 2")
+    cb()
+  }, 2000)
+}
+
+function fThree (cb) {
+	setTimeout(() => {
+  	console.log("Fn 3")
+    cb()
+  }, 1000)
+}
+
+function fFour (cb) {
+	setTimeout(() => {
+  	console.log("Fn 4")
+    cb()
+  }, 3000)
+}
+
+function fQueue (callbackList) {
+  //closure - maintains state of the callbackList
+  function nextCB() {
+  
+    const currCallback = callbackList.shift()
+    if(currCallback && typeof currCallback === 'function') {
+    	console.log('cb', callbackList)
+    	currCallback(nextCB)
+    }
+  }
+  
+  nextCB()
+}
+
+//driver
+const  cbList = [fOne, fTwo, fThree, fFour]
+fQueue(cbList)
+
+//Q. Execute the given list of asynchronous functions in parallel and return the results as an array to the callback
+
+function asyncFunc1(callback) {
+    setTimeout(() => {
+    		console.log('cb 1')
+        callback(1);
+    }, 3000);
+}
+
+function asyncFunc2(callback) {
+    setTimeout(() => {
+    console.log('cb 2')
+        callback(2);
+    }, 2000);
+}
+
+function asyncFunc3(callback) {
+    setTimeout(() => {
+    console.log('cb 3')
+        callback(3);
+    }, 1000);
+}
+
+function asyncParallel(cbList, results) {
+	const dynamicResultsArr = new Array(cbList.length)
+  let resultsCompleted = 0
+
+	cbList.forEach((asyncFn, index) => {
+  
+  	asyncFn((value) => {
+    	dynamicResultsArr[index] = value
+    	resultsCompleted++
+      
+      if(resultsCompleted >= dynamicResultsArr.length) {
+      	//print results callback
+        results(dynamicResultsArr)
+      }
+    })
+  })
+}
+
+
+asyncParallel([asyncFunc1, asyncFunc2, asyncFunc3], (result) => {
+	// 1, 2, 3 (prints results of each asynchronous function in order)
+	console.log(result);                                              
+});
+
+//Q. Execute 3 asynchronous functions one after the other in sequence using promise chaining
+
+function asyncFn1 (res) {
+	return new Promise ((resolve) => {
+  	setTimeout(() => {
+      console.log('Fn1', res)
+      resolve('pending')
+    }, 5000)
+  })
+}
+
+function asyncFn2 (res) {
+	return new Promise((resolve) => {
+  	setTimeout(() => {
+    console.log('Fn2', res)
+    resolve(res)
+  	}, 3000)
+  })
+}
+
+function asyncFn3 (res) {
+	return new Promise((resolve) => {
+  	setTimeout(() => {
+    	console.log('Fn3',res)
+      resolve("success")
+  	}, 1000)
+  })
+}
+
+function promiseChain() {
+  return new Promise((resolve, reject) => {
+  	console.log('starting')
+    resolve('pending')
+  })
+}
+
+const response = promiseChain()
+	.then((res) => asyncFn1(res))
+	.then((res) => asyncFn2(res))
+	.then((res) => asyncFn3(res))
+  .then((res) => console.log(res))
+	.catch(() => console.log('error'))
+
+
+//Q. Execute 3 asynchronous functions one after the other in sequence using async await
+
+async function asyncFn1 (res) {
+  return new Promise((resolve) => {
+  	setTimeout(() => {
+    	console.log('Fn1', res)
+      resolve('mouse')
+  	}, 5000)
+  })
+}
+
+async function asyncFn2 (res) {
+  return new Promise((resolve) => {
+  	setTimeout(() => {
+    	console.log('Fn2', res)
+      resolve('bird')
+  	}, 3000)
+  })
+}
+
+async function asyncFn3 (res) {
+  return new Promise((resolve) => {
+  	setTimeout(() => {
+    	console.log('Fn3',res)
+      resolve('dog')
+  	}, 1000)
+  })
+}
+
+//IIFE
+(async function asyncAwait() {
+
+try {
+  console.log('starting async await')
+  const res1 = await asyncFn1('cat')
+  const res2 = await asyncFn2(res1)
+  const res3 = await asyncFn3(res2)
+  console.log(res3)
+  console.log('success')
+} catch {
+    console.log('error')
+}
+  
+})()
+
+//Q. Execute 3 asynchronous functions one after the other in sequence using promise chaining and do not terminate on failure
+
+function async1() {
+	console.log('fn1')
+  return Promise.resolve()
+}
+
+function async2() {
+	console.log('fn2')
+  return Promise.resolve()
+}
+
+function async3() {
+	console.log('fn3')
+  return Promise.resolve()
+}
+
+async1()
+    .then(
+        () => {
+            console.log('Async1 success');
+        },
+        () => {
+            console.log('Async1 failure');
+        }
+    )
+    .then(async2)
+    .then(
+        () => {
+            console.log('Async2 success');
+        },
+        () => {
+            console.log('Async2 failure');
+        }
+    )
+    .then(async3)
+    .then(
+        () => {
+            console.log('Async3 success');
+        },
+        () => {
+            console.log('Async3 failure')
+        }
+    )
+
+//Q. Execute 3 asynchronous functions one after the other in sequence using async await and do not terminate on failure
+
+async function async1() {
+	console.log('fn1')
+  Promise.resolve()
+}
+
+async function async2() {
+	console.log('fn2')
+  Promise.reject()
+}
+
+async function async3() {
+	console.log('fn3')
+  Promise.resolve()
+}
+
+async function seqAsyncAwait() {
+	console.log('starting sequential async await')
+	try {
+  	await async1()
+  } catch(err) {
+      console.log(err)
+  }
+  
+  try {
+  	await async2()
+  } catch(err) {
+      console.log(err)
+  }
+  
+  try {
+  	await async3()
+  } catch(err) {
+      console.log(err)
+  }
+  console.log('success')
+}
+
+seqAsyncAwait()
+
+
+//Q. Execute an array of asynchronous functions which returns a promise, one after the other in sequence using REDUCE FN
+
+function async1() {
+	return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log('fn1')
+      resolve()
+    }, 3000)
+  })
+}
+
+function async2() {
+	console.log('fn2')
+  return Promise.resolve()
+}
+
+function async3() {
+	console.log('fn3')
+  return Promise.resolve()
+}
+
+const asyncFnArr = [async1, async2, async3]
+
+asyncFnArr.reduce((acc, asyFn) => {
+	return acc.then(() => asyFn())
+}, Promise.resolve()).catch(() => console.log('error'))
+
+
+//Q. Execute an array of ASYNC/AWAIT returns a promise, one after the other in sequence using REDUCE FN
+
+async function async1() {
+	return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log('fn1')
+      resolve()
+    }, 2000)
+  })
+}
+
+async function async2() {
+	console.log('fn2')
+  return Promise.resolve()
+}
+
+async function async3() {
+	return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log('fn3')
+      resolve()
+    }, 4000)
+  })
+}
+
+const asyncFnArr = [async1, async2, async3]
+
+asyncFnArr.reduce(async (acc, asyFn) => {
+	return await acc.then(() => asyFn())
+}, Promise.resolve()).catch(() => console.log('error'))
+
+
+//Q. Execute an array of asynchronous functions simultaneously but print the output in the ordered sequence. Do not wait for printing the data if it already available after promise is settled
+
+function async1() {
+	return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log('fn1')
+      resolve('cat')
+    }, 2000)
+  })
+}
+
+function async2() {
+	console.log('fn2')
+  return Promise.resolve('dog')
+}
+
+function async3() {
+	return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log('fn3')
+      resolve('fish')
+    }, 4000)
+  })
+}
+
+const asyncFnList = [async1, async2, async3]
+const results = []
+
+asyncFnList
+	.map((asyFn) => asyFn())
+  .reduce((acc, promise) => {
+  	return acc.then(() => promise).then((res) => results.push(res))
+  }, Promise.resolve())
+  .then(() => console.log('Results:', results))
+  .catch(() => console.log('error'))
+
+
+//Q. Execute an array of asynchronous functions simultaneously but print the output in the ordered sequence. Do not wait for printing the data if it already available after promise is settled USING ASYNC AWAIT
+
+async function async1() {
+	return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log('fn1')
+      resolve('cat')
+    }, 2000)
+  })
+}
+
+async function async2() {
+	console.log('fn2')
+  return Promise.resolve('dog')
+}
+
+async function async3() {
+	return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log('fn3')
+      resolve('fish')
+    }, 4000)
+  })
+}
+
+const asyncFnList = [async1, async2, async3]
+const results = []
+
+asyncFnList
+	.map((asyFn) => asyFn())
+  .reduce(async (acc, promise) => {
+  	results.push(await acc.then(() => promise))
+  }, Promise.resolve())
+  .then(() => console.log('Results:', results))
+  .catch(() => console.log('error'))
+
+
+//Q. Design a utility which takes URL and a value for attempts which will attempt to make a fetch request. If on failure it tries again with increasing delay for number of times which user has requested
+
+
+function fetchRetry (url, attempts=3) {
+	return new Promise(async (resolve, reject) => {
+  	for (let i=0; i < attempts; i++) {
+      try {
+        const response = await fetch(url)
+        resolve(response)
+				break
+      } catch (error) {
+        	if(attempts - 1 === i) {
+          	reject(error)
+          	break
+        	}
+        	//in catch
+        	await new Promise ((resolve) => setTimeout(resolve, i*1000+1000))
+      	}
+    }
+  })	
+}
+
+const apiURL = 'https://pokeapi.co/api/v2/pokemon/bulbasaur'
+
+fetchRetry(apiURL, 3).then((data) => data.json()).then((data) => console.log(data.name)).catch(() => console.log('error'))
+
+
+//Q. Create a generator to return a random number on every request
+
+function * generatorRand() {
+	while(true) {
+	  yield Math.floor(Math.random() * (101-1) + 1)
+	}
+}
+
+let rand
+
+let gen = generatorRand()
+
+rand = gen.next().value
+console.log('randNum: ', rand)
+
+rand = gen.next().value
+console.log('randNum: ', rand)
+
+rand = gen.next().value
+console.log('randNum: ', rand)
+
+
+//Q. Create dynamic input element that take an input and debounces the input string 1s later
+
+//Debounce HTML
+
+<div>
+  <input type='text' id="input">
+</div>
+
+<div>
+  <b>Default:</b>
+  <span id='default'></span>
+</div>
+
+<div>
+  <b>Debounce:</b>
+  <span id="debounce"></span>
+</div>
+
+//Debounce Vanilla JS
+
+const inputElement = document.getElementById('input')
+const defaultDiv = document.getElementById('default')
+const debounceDiv = document.getElementById('debounce')
+
+inputElement.addEventListener('input', (e) => {
+  defaultDiv.textContent = e.target.value
+  updateDebounceText(e.target.value)
+})
+
+function debounce(cb, delay) {
+  let time
+  
+  return (args) => {
+    clearTimeout(time)
+    time = setTimeout(() => {
+      cb(args)
+    }, delay)
+  }
+}
+
+const updateDebounceText = debounce((text) => {
+  debounceDiv.textContent = text
+}, 1000)
+
+ 
+
+
+
+

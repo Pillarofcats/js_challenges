@@ -1,0 +1,56 @@
+const nestObj = {
+	mother: {},
+	sister: {
+  	name: "Jenna"
+  },
+	brother: {
+  	name: "Jacob",
+    age: 33,
+  	stats: {
+    	strength: 12,
+      intelligence: 14,
+      dexterity: 16,
+      bonusStats: {
+      	strMod: 2,
+        intMod: 1,
+        dexMod: 3
+      }
+    }
+  }
+}
+
+let keyValues = []
+
+function getObjectKeyValue(k, objChain) {
+
+	const keyList = Object.keys(objChain)
+  
+  if(keyList.length === 0) return false
+  
+  if(keyList.includes(k)) return objChain[k]
+  
+  for(let key of keyList) {
+    
+    if(typeof objChain[key] === 'object' && objChain[key].length !== 0) {
+    	console.log("Searching on key object", key)
+    	const result = getObjectKeyValue(k, objChain[key])
+      if(result) keyValues.push(result)
+    }
+  }
+}
+
+getObjectKeyValue('mother', nestObj)
+console.log('keyValues', keyValues)
+keyValues = []
+
+getObjectKeyValue('name', nestObj)
+console.log('keyValues', keyValues)
+keyValues = []
+
+getObjectKeyValue('stats', nestObj)
+console.log('keyValues', keyValues)
+keyValues = []
+
+getObjectKeyValue('dexMod', nestObj)
+console.log('keyValues', keyValues)
+keyValues = []

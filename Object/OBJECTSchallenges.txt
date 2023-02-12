@@ -1,0 +1,349 @@
+//Q. Display all the keys and values of a nested object
+
+function nestedObjPrintKeyValues(nestObj) {
+	let objMap = new Map()
+  //Set Q to init object
+	let objStack = [nestObj]
+	
+  //Loop through object Q key/values
+  while(objStack.length > 0) {
+    //Get the next nested object from objQ
+    let currNestObj = objStack.pop()
+    //Loop through current nest object
+    for(let [key, value] of Object.entries(currNestObj)) {
+    	objMap.set(key, value)
+      //console.log(`${key}: ${value}`)
+    	
+      if(typeof value === 'object') {
+      //value is the object
+        objStack.push(value)
+      }
+    }
+ 	}
+  
+  objMap.forEach((key, value, map) => {
+  	console.log(`${key}: ${value}`)
+  })
+  
+	return objMap
+}
+
+const nObj = {
+	'L0': {
+  	'L0a': {
+    	'L0a1': 'L0a1',
+      'L0a2': {
+      	'L0a2a': 'L0a2a'
+      }
+    }, 
+    'L0b': {
+    	'L0b1': 'L0b1'
+    }  				
+  },
+  'L1': {
+  	'L1a': {
+    	'L1a1': 'L1a1'
+    }
+  }
+}
+
+nestedObjPrintKeyValues(nObj)
+
+//RECURSIVE PRINT NESTED OBJECT
+
+//Q. Display all the keys and values of a nested object
+
+function recursiveNestedObjPrintKeyValues(nestObj) {
+
+	for(let [key, value] of Object.entries(nestObj)) { 
+    
+    if(typeof value === 'object') {
+    	console.log(`${key}: {`)
+      for(let [vk, vv] of Object.entries(value)) {
+      	console.log(`\t${vk}: ${vv}`)
+      }
+      console.log(`}`)
+      
+    	recursiveNestedObjPrintKeyValues(value)
+    } else {
+    		console.log(`${key}: ${value}`)
+			}
+  }
+}
+
+const nObj = {
+	'L0': {
+  	'L0a': {
+    	'L0a1': 'L0a1',
+      'L0a2': {
+      	'L0a2a': 'L0a2a'
+      }
+    }, 
+    'L0b': {
+    	'L0b1': 'L0b1'
+    }  				
+  },
+  'L1': {
+  	'L1a': {
+    	'L1a1': 'L1a1'
+    }
+  }
+}
+
+recursiveNestedObjPrintKeyValues(nObj)
+
+
+
+//Q. Write a program which can set all non-object keys to a value of null
+
+function setNonObjectKeysToNull(o) {
+	
+	for(let [k,v] of Object.entries(o)) {
+		
+    if(typeof v === 'object') {
+			setNonObjectKeysToNull(o[k])
+		} else {
+    		o[k] = null
+        console.log(`${k}: ${o[k]}`)
+			}
+	}
+}
+
+const nObj = {
+	'L0': {
+  	'L0a': {
+    	'L0a1': 'L0a1',
+      'L0a2': {
+      	'L0a2a': 'L0a2a'
+      }
+    }, 
+    'L0b': {
+    	'L0b1': 'L0b1'
+    }  				
+  },
+  'L1': {
+  	'L1a': {
+    	'L1a1': 'L1a1'
+    }
+  }
+}
+
+setNonObjectKeysToNull(nObj)
+console.log('Set all non-object keys to null', nObj)
+
+
+//Q. Write a program which can set all non-object keys to a value of null
+
+function emptyObj(o) {
+	for(let key in o) {
+  	delete o[key]
+	}
+}
+
+const nObj = {
+	'L0': {
+  	'L0a': {
+    	'L0a1': 'L0a1',
+      'L0a2': {
+      	'L0a2a': 'L0a2a'
+      }
+    }, 
+    'L0b': {
+    	'L0b1': 'L0b1'
+    }  				
+  },
+  'L1': {
+  	'L1a': {
+    	'L1a1': 'L1a1'
+    }
+  }
+}
+
+console.log('Full object: ', nObj)
+emptyObj(nObj)
+console.log('Emptied object: ', nObj)
+
+
+//Q. Show how a deep copy of an object can be done
+
+function cpyObj(o, cpy= {}) {
+
+	for(let prop in o) {
+    
+  	if(typeof prop === 'object') {
+    	return cpyObj(o[prop])
+    }
+  	cpy[prop] = o[prop]
+  }
+
+	return cpy
+}
+
+const nestObject = {
+	a: {
+		b: {
+    	c: {
+      	d: ['d']
+      }
+    }
+  }
+}
+
+const theCopy = cpyObj(nestObject)
+
+theCopy.a.b.c.e = 'new'
+
+console.log('The copy: ', theCopy)
+console.log('The orig: ', nestObject)
+
+
+
+//Q. Create an array of pair of values (key, value) from an object and store it in a map. Consider the object is not nested
+
+const notNestedObj = {
+	a: ['a'],
+  b: 'b',
+  c: function() { console.log('c') }
+}
+
+const m = new Map()
+
+for(let [k,v] of Object.entries(notNestedObj)) {
+  m.set(k,v)
+}
+
+console.log(m)
+
+//OR
+
+const betterMap = new Map(Object.entries(notNestedObj))
+
+console.log(betterMap)
+
+
+
+//Q. Create an object with a property 'marks' which cannot be set to a value less than 0
+
+const o = {
+	marks: 0
+}
+
+Object.defineProperty(o, "marks", {
+	set(v) {
+  	if(v < 0) throw new Error('Value must be greater than or equal to zero')
+    
+    marks = v
+  },
+  get() {
+  	return marks
+  }
+})
+
+o.marks = 1
+console.log(o)
+o.marks = -1
+
+//OR
+
+const obj = {
+  _marks: 0,
+
+  set marks(value) {
+    if (value < 0) throw new Error("Marks cant be less than zero");
+    this._marks = value;
+  },
+
+  get marks() {
+    return this._marks;
+  },
+};
+
+
+
+//Q. Create an object which has a property 'userid' which can only be set once and will be a read only property
+
+function createReadOnlyObj (v) {
+	const o = {}
+  
+  Object.defineProperty(o, 'userid', {
+  	value: v,
+    writeable: false
+  })
+
+	return o
+}
+
+let roObj = createReadOnlyObj(5)
+console.log('roObj.userid = ', roObj.userid)
+roObj.userid = 1
+console.log('Changed userid to 1, but writeable is false ', roObj.userid)
+
+
+
+//Q. Stringify an object by excluding the 'password' property
+
+const ob = {
+	name: 'ob',
+  password: 'secret',
+  id: 0
+}
+
+const noPasswordObj = JSON.stringify(ob, (k,v) => {
+	if(k === 'password') {
+  	return undefined
+  }
+  
+  return v
+})
+console.log("Original object: ", ob)
+console.log("Object without password property: ", JSON.parse(noPasswordObj))
+
+
+
+//Q. Design a function which takes an array as input and returns a function 'next', calling which fetches a value one by one
+
+function objIter (arr) {
+	let ind = 0
+  
+  return {
+  	next() {
+    	if(ind < arr.length) { return {value: arr[ind++], done: false}}
+      else return {value: 'null', done: true}
+    }
+  }
+}
+
+const arr = [1,2,3,4,5]
+
+let o = objIter(arr)
+
+console.log(o.next())
+console.log(o.next())
+console.log(o.next())
+console.log(o.next())
+console.log(o.next())
+//finished iterating
+console.log(o.next())
+console.log(o.next())
+
+
+
+//Q. Create an object 'obj' with functions assigned to keys. Show how can we achieve 'obj.func1().func2().func3()' considering func1, func2, func3 are object keys
+
+const fObj = {
+	ind: 0,
+	f1() {
+  	console.log('f1', ++this.ind)
+  	return this
+  },
+  f2() {
+  	console.log('f2', ++this.ind)
+  	return this
+  } ,
+  f3() {
+  	console.log('f3', ++this.ind)
+  	return this
+  }
+}
+
+fObj.f1().f2().f3()
