@@ -1,0 +1,31 @@
+
+
+
+/**
+ * @param {any} arg
+ * @returns any
+ */
+
+function undefinedToNull(arg) {
+
+  //array check for arg
+  if(Array.isArray(arg)) {
+    //loop through each array element calling undefinedToNull() for that element, returns NEW array
+    return arg.map((elem) => undefinedToNull(elem))
+  }
+
+  //object literal check for arg
+  else if(Object.prototype.toString.call(arg) === '[object Object]') {
+    //new object to prevent mutating
+    const newObj = {}
+    //loop through arg object keys
+    for(let key in arg) {
+      //Set new object values to recursive fn undefinedToNull() passing current object values (arg[key])
+      newObj[key] = undefinedToNull(arg[key])
+    }
+    return newObj
+  }
+
+  //primative, if undefined set null
+  else return arg === undefined ? null : arg
+}
